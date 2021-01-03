@@ -1,4 +1,4 @@
-#**naviscroll.js**
+# **naviscroll.js**
 
 Naviscroll.js is a lightweight customizable library for generating a navigation menu 
 from the sections on your website and keeping track which one is in view<br/>
@@ -10,7 +10,7 @@ and goes finding any nested sections repeating same thing for them.
 
 [Live demo](https://codepen.io/troalexis/pen/QWKmaeo)
 
-##Installation
+## Installation
 
 Use [npm](https://www.npmjs.com/) to install and use with a module bundler
 ```bash
@@ -98,7 +98,7 @@ const defaultProps = {
 };
 ```
 
-You can set `data-adclass` attribute on a section
+You can set `data-addclass` attribute on a section
 to set the class on the navigation element connected to it
 in case you need some control on styling, as well as you can style navigation elements using `data-depth`
 indicating how deep the element is in sections.
