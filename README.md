@@ -20,7 +20,7 @@ npm install naviscroll
 Also you can use a CDN
 
 ```html
-<script src="unpkg.com/naviscroll@1.0.0/naviscroll.js"><script>
+<script src="https://unpkg.com/naviscroll@1.0.0/naviscroll.js"></script>
 ```
 
 Or download the zip and put it into your project folder, 
