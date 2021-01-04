@@ -16,40 +16,81 @@ const mainDOM = {
 const defaultProps = {
   // Set to false to prevent recursive generation of sections
   subsections: true,
+
   // Set to false not to create links for sections
   createLinks: true,
+
+  // Set to false to disable setting ids for sections
+  setSectionIds: true,
+
   // Element to append to or a selector.
   appendTo: '',
+
   // Selector for document sections to observe generate navigation from
   sectionsClass: `.${mainDOM.sectionsClass}`,
+
   // Selector for document section-heading to generate the names of nav sections
+  // You can also set headings via data-heading attribute on the section itself
   sectionHeadingClass: `.${mainDOM.sectionsClass}__heading`,
+
+  // Set to false to disable building navigation to use only sections observer
+  buildNav: true,
+
+  // Function to execute on section build to add extra classes or properties.
+  onSectionBuild: ({
+    sectionEl,
+    navSectionEl,
+    parent,
+    depth,
+  }) => {},
+
   // Tag to use for nav element
   navTag: 'nav',
+
   // Classname to give to navigation element
   navClass: mainDOM.navClass,
+
   // Classname for navigation section
   navSectionClass: `${mainDOM.navClass}__section`,
+
   // Classname for navigation sub-section
   navSubSectionClass: `${mainDOM.navClass}__sub-section`,
+
   // Type of list to use in navigation
   navListType: 'ul',
+
   // Type of element to create for navigation section
   navSectionTag: 'li',
+
   // String to insert before id number;
   idString: '',
+
   // String to separate sections and subsections ids
   idSeparator: '-',
+
   // Set to false to disable observing sections
   observe: true,
+
   // Function to call when section gets into view
-  onSectionIn: () => {},
+  onSectionIn: ({
+    sectionEl, navEl, id, depth,
+  }) => {
+    // do stuff with elements here
+  },
+
   // Function to call when section gets out of view
-  onSectionOut: () => {},
+  onSectionOut: ({
+    sectionEl, navEl, id, depth,
+  }) => {
+    // do stuff with elements here
+  },
+
   // Root margin for intersection observer
   rootMargin: '-50% 0px -50% 0px',
+
   // Root element for intersection observer, viewport by default
   observerRoot: null,
+
 };
 
 class Naviscroll {
@@ -119,7 +160,7 @@ class Naviscroll {
   }
 
   // Method to build a navigation section based on props
-  buildNavSection(props) {
+  buildNavSection(props, callback) {
     // Rename navEl prop to parent for simplicity
     const {
       navEl: parent, id, sectionEl, depth,
@@ -131,22 +172,19 @@ class Naviscroll {
       navSectionTag,
       sectionHeadingClass,
       createLinks,
+      setSectionIds,
     } = this.props;
-
-    // Get extra class to add to the new navigation element
-    const { addclass } = sectionEl.dataset;
 
     // Creates a li element by default with extra classes and id class.
     const navSectionEl = document.createElement(navSectionTag);
     navSectionEl.className = `
         ${navSectionClass}
-        ${addclass || ''}
      `;
     const sectionHeading = getSectionHeading({
       sectionEl,
       sectionHeadingClass,
     });
-    if (createLinks) {
+    if (createLinks && setSectionIds) {
       // Create a link to navigate to a section.
       const navSectionLink = document.createElement('a');
       navSectionLink.href = `#${id}`;
@@ -179,6 +217,12 @@ class Naviscroll {
       // If no parent provided, append to the core wrapping element
       this.navWrapper.appendChild(navSectionEl);
     }
+    callback({
+      sectionEl,
+      navSectionEl,
+      navElParent: parent,
+      depth,
+    });
     // Return the created element to use with observer
     return navSectionEl;
   }
@@ -215,11 +259,15 @@ class Naviscroll {
   }
 
   init() {
+    const { buildNav, setSectionIds } = this.props;
     // Build navigation base;
-    this.buildNav();
+    if (buildNav) {
+      this.buildNav();
+    }
 
     // Get onSectionIn and onSection out functions provided by user
     const {
+      onSectionBuild,
       onSectionIn,
       onSectionOut,
       observe,
@@ -230,32 +278,41 @@ class Naviscroll {
     // Execute callback function on every section found.
     const sectionsCallback = (props) => {
       // Set element id.
-      setElementId(props);
+      if (setSectionIds) {
+        setElementId(props);
+      }
       if (observe) {
         // Initialize observer with user-provided functions.
         sectionObserver({
           onSectionIn: () => {
-          // this.setActiveSection(props);
-            this.toggleActiveSection(props, 'add');
+            if (buildNav) {
+              this.toggleActiveSection(props, 'add');
+            }
             onSectionIn(props);
           },
           onSectionOut: () => {
-          // this.removeActiveSection(props);
-            this.toggleActiveSection(props, 'remove');
+            if (buildNav) {
+              this.toggleActiveSection(props, 'remove');
+            }
             onSectionOut(props);
           },
           rootMargin,
           root,
         }).observe(props.sectionEl);
       }
-      return this.buildNavSection(props);
+      if (buildNav) {
+        return this.buildNavSection(props, onSectionBuild);
+      }
+      return null;
     };
 
     this.goOverSections({
       sectionEl: this.sectionsContainer,
     }, sectionsCallback);
-    // Append nav-wrapper to the nav element after all build processes finished
-    this.navEl.appendChild(this.navWrapper);
+    if (buildNav) {
+      // Append nav-wrapper to the nav element after all build processes finished
+      this.navEl.appendChild(this.navWrapper);
+    }
   }
 }
 
@@ -295,10 +352,6 @@ function sectionObserver({
   });
 }
 
-function naviscroll(target, obj) {
+export default function naviscroll(target, obj) {
   return new Naviscroll(target, obj);
 }
-
-window.naviscroll = naviscroll;
-
-export default naviscroll;
