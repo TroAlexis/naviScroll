@@ -285,16 +285,16 @@ class Naviscroll {
         // Initialize observer with user-provided functions.
         sectionObserver({
           onSectionIn: () => {
+            onSectionIn(props);
             if (buildNav) {
               this.toggleActiveSection(props, 'add');
             }
-            onSectionIn(props);
           },
           onSectionOut: () => {
+            onSectionOut(props);
             if (buildNav) {
               this.toggleActiveSection(props, 'remove');
             }
-            onSectionOut(props);
           },
           rootMargin,
           root,
@@ -326,7 +326,7 @@ function setElementId(props) {
 function getSectionHeading({ sectionEl, sectionHeadingClass }) {
   if (sectionHeadingClass) {
     const sectionHeading = sectionEl.querySelector(sectionHeadingClass);
-    return sectionHeading ? sectionHeading.textContent : sectionEl.dataset.heading;
+    return sectionEl.dataset.heading ? sectionEl.dataset.heading : sectionHeading.textContent;
   }
   return sectionEl.dataset.heading;
 }
