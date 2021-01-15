@@ -4,7 +4,8 @@
   "description": "A small package to create a navigation component from sections of a website and track which one is in view",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"No test specified\""
+    "test": "echo \"No test specified\"",
+    "build": "curl -X POST -s --data-urlencode 'input@src/naviscroll.js' https://javascript-minifier.com/raw > index.js && curl -X POST -s --data-urlencode 'input@src/naviscroll.umd.js' https://javascript-minifier.com/raw > naviscroll.umd.js"
   },
   "repository": {
     "type": "git",
