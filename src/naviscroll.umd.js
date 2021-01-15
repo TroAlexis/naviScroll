@@ -352,6 +352,5 @@ function sectionObserver({
   });
 }
 
-export default function naviscroll(target, obj) {
-  return new Naviscroll(target, obj);
-}
+window.naviscroll=function(e,n){return new Naviscroll(e,n)};
+
